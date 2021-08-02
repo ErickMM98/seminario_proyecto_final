@@ -15,21 +15,37 @@ c) Cross validate the polynomial with the data set called “problem1.csv (x_tes
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import numpy.polynomial.polynomial as poly
+plt.style.use('fivethirtyeight')
 
-# =============================================================================
-# plt.rcParams.update({
-#     "text.usetex": True,
-#     "font.family": "serif",
-#     "font.serif": ["Palatino"],
-# })
-# =============================================================================
+
+
+
 
 data = pd.read_csv('data/problem1.csv')
 
 X_train = data['X_training']
 Y_train = data['Y_training']
 
-fig, ax = plt.subplots()
+X_test = data['X_test']
+Y_test = data['Y_test']
 
-ax.scatter( X_train, Y_train, color = 'red')
+x = np.linspace(-5,5, 50)
+
+fig, ax = plt.subplots()
+fig.set_size_inches([10,10])
+
+
+#plt.cm.rainbow(0)
+for degree in range(10):
+    coef = poly.polyfit(X_train, Y_train, 
+                    degree + 1,rcond=None,w=None) # Assuming a Polynomyal degree 8
+    model = poly.Polynomial(coef)
+    ax.plot(x, model(x), marker ='.', linestyle = '--',linewidth=2.2,
+            label = 'degree = {}'.format(degree+1), alpha = 0.3)
+ax.scatter( X_train, Y_train, color = 'red', label = 'train', marker ='s')
+ax.scatter( X_test, Y_test, color = 'blue', label = 'test', marker ='s')
+ax.legend(loc = 'upper left')
+ax.set_ylim([-10,60])
 plt.show()

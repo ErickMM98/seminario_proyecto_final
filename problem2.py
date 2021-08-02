@@ -13,3 +13,35 @@ outcome). Arrange the data and briefly explain your results. The variable â€œyâ€
 and 1 to represent the progression.
 """
 import pandas as pd 
+import seaborn as sns
+import numpy.polynomial.polynomial as poly
+import matplotlib.pyplot as plt 
+
+#plt.style.use('seaborn')
+plt.style.use('fivethirtyeight')
+
+data = pd.read_csv('data/problem2.csv').T
+data = pd.DataFrame({'age': data.index[1:],
+                     'cholesterol': data[0][1:],
+                     'sugar': data[1][1:],
+                     'Tcell': data[2][1:],
+                     'y': data[3][1:]}).reset_index()
+data = data.drop(['index'], axis = True)
+data = data.sort_values(by='age')
+
+fig, ax = plt.subplots(2,2)
+sns.scatterplot(data=data, x="age", y="y", hue="y", ax = ax[0][0])
+sns.scatterplot(data=data, x="cholesterol", y="y", hue="y", ax = ax[0][1])
+sns.scatterplot(data=data, x="sugar", y="y", hue="y", ax = ax[1][0])
+sns.scatterplot(data=data, x="Tcell", y="y", hue="y", ax = ax[1][1])
+
+ax[0][0].get_legend().remove()
+ax[0][1].get_legend().remove()
+ax[1][0].get_legend().remove()
+ax[0][1].set_yticks((0,1))
+ax[0][0].set_yticks((0,1))
+ax[1][1].set_yticks((0,1))
+ax[1][0].set_yticks((0,1))
+#ax[1][1].get_legend().remove()
+
+#ax[0][1].scatter()
