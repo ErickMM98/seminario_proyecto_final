@@ -14,6 +14,7 @@ and 1 to represent the progression.
 """
 import pandas as pd 
 import seaborn as sns
+import numpy as np
 import numpy.polynomial.polynomial as poly
 import matplotlib.pyplot as plt 
 
@@ -30,15 +31,56 @@ data = data.drop(['index'], axis = True)
 data = data.sort_values(by='age')
 
 fig, ax = plt.subplots(2,2)
+fig.set_size_inches([10,10])
 sns.scatterplot(data=data, x="age", y="y", hue="y", ax = ax[0][0])
 sns.scatterplot(data=data, x="cholesterol", y="y", hue="y", ax = ax[0][1])
 sns.scatterplot(data=data, x="sugar", y="y", hue="y", ax = ax[1][0])
 sns.scatterplot(data=data, x="Tcell", y="y", hue="y", ax = ax[1][1])
 
 ax[0][0].get_legend().remove()
+ax[0][0].xaxis.set_tick_params(rotation=45)
 ax[0][1].get_legend().remove()
 ax[1][0].get_legend().remove()
 ax[0][1].set_yticks((0,1))
 ax[0][0].set_yticks((0,1))
 ax[1][1].set_yticks((0,1))
 ax[1][0].set_yticks((0,1))
+
+#SEPARAMOS POR 
+
+fig, [[ax0,ax1],[ax2,ax3]] = plt.subplots(2,2)
+fig.set_size_inches([10,10])
+
+
+sns.scatterplot(data=data, x="sugar", y="Tcell", hue="y", ax = ax0)
+sns.scatterplot(data=data, x="cholesterol", y="Tcell", hue="y", ax = ax1)
+sns.scatterplot(data=data, x="sugar", y="age", hue="y", ax = ax2)
+sns.scatterplot(data=data, x="cholesterol", y="age", hue="y", ax = ax3)
+
+
+#---------------------------------------------------------------------------
+#--------------------------------------------------------------------------
+
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.preprocessing import StandardScaler
+
+X = data.drop(['y'], axis=True)
+X = X[['Tcell','sugar']]
+X = StandardScaler(with_std=False).fit_transform(X)
+y = data['y'].astype(int)
+print(y)
+
+
+pca = PCA(n_components=2)
+X_r = pca.fit(X).transform(X)
+
+lda = LinearDiscriminantAnalysis(n_components=1)
+X_r2 = lda.fit(X, y).transform(X)
+dfpca = pd.DataFrame({'PC1': X_r[:,1],
+           'PC2': X_r[:,1],
+           'y':y})
+
+fig, ax = plt.subplots()
+sns.scatterplot(data=dfpca, x="PC1", y="PC2", hue="y", ax = ax)
+fig.show()

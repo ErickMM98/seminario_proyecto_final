@@ -59,3 +59,17 @@ ax.set_xlabel("x")
 ax.set_ylabel("y")
 fig.show()
 fig.savefig('images/comparacionplonomios.pdf')
+
+
+
+#Cross Validation 
+
+from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+test = test.dropna()
+poly_features = PolynomialFeatures(degree=grade)
+X_poly = poly_features.fit_transform(test)
+poly = LinearRegression()
+cross_val_score(poly, X_poly, test["Y_test"], cv=5)
+
