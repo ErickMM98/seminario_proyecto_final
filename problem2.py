@@ -46,41 +46,66 @@ ax[0][0].set_yticks((0,1))
 ax[1][1].set_yticks((0,1))
 ax[1][0].set_yticks((0,1))
 
+fig.savefig("images/distribuciones.pdf")
+
 #SEPARAMOS POR 
 
 fig, [[ax0,ax1],[ax2,ax3]] = plt.subplots(2,2)
 fig.set_size_inches([10,10])
-
-
 sns.scatterplot(data=data, x="sugar", y="Tcell", hue="y", ax = ax0)
 sns.scatterplot(data=data, x="cholesterol", y="Tcell", hue="y", ax = ax1)
 sns.scatterplot(data=data, x="sugar", y="age", hue="y", ax = ax2)
 sns.scatterplot(data=data, x="cholesterol", y="age", hue="y", ax = ax3)
 
+fig.savefig("images/scaterplotgoods.pdf")
+
 
 #---------------------------------------------------------------------------
 #--------------------------------------------------------------------------
+#GENERAMOS EL MODELO
+#--------------------------------------------------------------
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix
+from scipy.special import expit
 
-from sklearn.decomposition import PCA
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.preprocessing import StandardScaler
+X = data[['sugar', 'Tcell']]
 
-X = data.drop(['y'], axis=True)
-X = X[['Tcell','sugar']]
-X = StandardScaler(with_std=False).fit_transform(X)
 y = data['y'].astype(int)
-print(y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
 
 
-pca = PCA(n_components=2)
-X_r = pca.fit(X).transform(X)
+clf = LogisticRegression(random_state=0).fit(X_train, y_train)
+clf.fit(X_train, y_train)
+print(clf.score(X_train, y_train))
+print(clf.score(X_test, y_test))
 
-lda = LinearDiscriminantAnalysis(n_components=1)
-X_r2 = lda.fit(X, y).transform(X)
-dfpca = pd.DataFrame({'PC1': X_r[:,1],
-           'PC2': X_r[:,1],
-           'y':y})
+alpha = clf.intercept_
+beta = clf.coef_.T
+X_train_tranform = np.array(X_train @ beta + alpha)
+X_ttest_tranform = np.array(X_test @ beta + alpha)
+
+x_foo = np.linspace(min( [X_train_tranform.min(),
+                          X_ttest_tranform.min()] ),
+                    max( [X_train_tranform.max(),
+                          X_ttest_tranform.max()] ),
+                    100)
+
+
+loss = expit(x_foo)
 
 fig, ax = plt.subplots()
-sns.scatterplot(data=dfpca, x="PC1", y="PC2", hue="y", ax = ax)
-fig.show()
+ax.set_title("Ajustado")
+ax.scatter(X_train_tranform, clf.predict_proba(X_train)[:,1], label = 'Train',
+           color = 'b')
+ax.scatter(X_ttest_tranform, clf.predict_proba(X_test)[:,1], label = 'Test',
+           color = 'r')
+ax.plot(x_foo, loss, linewidth=3, color = 'g', alpha = 0.5)
+
+ax.legend()
+ax.set_ylabel("Diagnóstico.")
+fig.savefig("images/ajustado.pdf")
+#ax.scatter(x_foo,clf.predict_proba(x_foo)[:,1],marker='x',color='g',linewidth=.1)
+
+
+
