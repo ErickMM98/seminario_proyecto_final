@@ -31,21 +31,31 @@ Y_train = data['Y_training']
 X_test = data['X_test']
 Y_test = data['Y_test']
 
-x = np.linspace(-5,5, 50)
+x = np.linspace(-5,5, 100)
 
+#PRIMER GRÁFICO
+#Se ven los primeros ajustes
 fig, ax = plt.subplots()
 fig.set_size_inches([10,10])
-
-
 #plt.cm.rainbow(0)
-for degree in range(10):
+for degree in range(11):
     coef = poly.polyfit(X_train, Y_train, 
                     degree + 1,rcond=None,w=None) # Assuming a Polynomyal degree 8
     model = poly.Polynomial(coef)
-    ax.plot(x, model(x), marker ='.', linestyle = '--',linewidth=2.2,
-            label = 'degree = {}'.format(degree+1), alpha = 0.3)
-ax.scatter( X_train, Y_train, color = 'red', label = 'train', marker ='s')
-ax.scatter( X_test, Y_test, color = 'blue', label = 'test', marker ='s')
+    if degree > 4 and degree < 10:
+        ax.plot(x, model(x), marker ='$ff$', linestyle = ':',linewidth=2.2,
+                label = 'degree = {}'.format(degree+1), alpha = 0.8)
+    else:
+        ax.plot(x, model(x), marker ='.', linestyle = '--',linewidth=2.2,
+                label = 'degree = {}'.format(degree+1), alpha = 0.8)
+ax.scatter( X_train, Y_train, color = 'red', label = 'train', marker ='s', zorder = -1)
+ax.scatter( X_test, Y_test, color = 'blue', label = 'test', marker ='s', alpha = 0.9)
 ax.legend(loc = 'upper left')
 ax.set_ylim([-10,60])
-plt.show()
+ax.set_ylim([Y_train.min(),Y_test.max()])
+ax.set_xlim([X_train.min(),X_test.max()])
+ax.set_title("Comparación de los polinomios.")
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+fig.show()
+fig.savefig('images/comparacionplonomios.pdf')

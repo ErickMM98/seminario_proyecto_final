@@ -42,6 +42,3 @@ ax[0][1].set_yticks((0,1))
 ax[0][0].set_yticks((0,1))
 ax[1][1].set_yticks((0,1))
 ax[1][0].set_yticks((0,1))
-#ax[1][1].get_legend().remove()
-
-#ax[0][1].scatter()
