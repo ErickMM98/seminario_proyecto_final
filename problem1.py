@@ -181,23 +181,26 @@ print(data_to_present.to_latex(index=False))
 
 fig, ax = plt.subplots()
 x = np.linspace(-2.5,X_test.max(), 100)
-coef = poly.polyfit(X_train, Y_train, 4)
+coef = poly.polyfit(X_train, Y_train, 5)
 print(coef)
 model = poly.Polynomial(coef)
 ax.scatter( X_train, Y_train, color = 'red', label = 'train', marker ='s', zorder = -1)
 ax.scatter( X_test, Y_test, color = 'blue', label = 'test', marker ='s', alpha = 0.9)
 ax.plot(x, model(x), marker ='$ff$', linestyle = ':',linewidth=2.2,
-                label = 'degree = {}'.format(4), alpha = 0.8)
+                label = 'degree = {}'.format(5), alpha = 0.5)
 ax.legend(loc = 'upper left')
 ax.set_ylim([-10,60])
 #ax.set_ylim([Y_train.min(),Y_test.max()])
 #ax.set_xlim([X_train.min(),X_test.max()])
-ax.set_title("Polinomio final de grado 4.")
+ax.set_title("Polinomio final de grado 5.")
 ax.set_xlabel("x")
 ax.set_ylabel("y")
 fig.show()
 fig.savefig('images/ajustefinal.pdf')
 
+
+coef = poly.polyfit(X_train, Y_train, 4)
+print(coef)
 """
 from sklearn.model_selection import cross_val_score
 from sklearn.linear_model import LinearRegression

@@ -59,14 +59,74 @@ sns.scatterplot(data=data, x="cholesterol", y="age", hue="y", ax = ax3)
 
 fig.savefig("images/scaterplotgoods.pdf")
 
-
 #---------------------------------------------------------------------------
-#--------------------------------------------------------------------------
-#GENERAMOS EL MODELO
-#--------------------------------------------------------------
+# VEAMOS SI HAY SIGNIFICANCIA EN LAS CLASES POR LAS VARIABLES 
+#---------------------------------------------------------------------------
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
+from scipy.special import expit
+
+fig, ax = plt.subplots(2,2)
+fig.set_size_inches([15,15])
+listax = list(ax[0]) +  list(ax[1])
+print(listax)
+#ax.set_title("Ajustado")
+i=0
+
+
+for columname in data.columns:
+    if columname != 'y':
+        x_foo_foo = data[columname].astype(float)
+        X_foo = np.array(data[columname].astype(float)).reshape(-1, 1)
+    
+        y_foo = data['y'].astype(int)
+    
+    
+        clf = LogisticRegression(random_state=0).fit(X_foo, y_foo)
+        score = clf.score(X_foo, y_foo)
+        
+        
+        #print(clf.score(X_train, y_train))
+        #print(clf.score(X_test, y_test))
+    
+        alpha = clf.intercept_
+        beta = clf.coef_.T
+        alpha = alpha[0]
+        beta = beta[0][0]
+        
+        #X_train_tranform = np.array(X_foo @ beta + alpha)
+    
+        x_foo = np.linspace( np.array(X_foo).min() - 50,
+                             np.array(X_foo).max() + 50,
+                             100)
+        x_foo = x_foo.reshape(-1, 1)
+        #x_foo_foo = beta * x_foo_foo + alpha
+        
+        #loss = expit(x_foo_foo)
+        ax = listax[i]
+        ax.set_title(columname)
+        ax.scatter(X_foo, clf.predict_proba(X_foo)[:,1], label = 'score = {}'.format(score),
+               color = 'b')
+        #ax.set_yticks((0,1))
+        ax.scatter(x_foo,clf.predict_proba(x_foo)[:,1],marker='x',color='g',linewidth=.1)
+        #ax.plot(x_foo_foo, loss, linewidth=3, color = 'g', alpha = 0.5)
+        ax.legend()
+        
+        i += 1
+
+#ax.legend()
+#ax.set_ylabel("Diagnóstico.")
+fig.savefig("images/significanciavariables.pdf")
+
+
+#---------------------------------------------------------------------------
+#--------------------------------------------------------------------------
+#GENERAMOS EL MODELO SOBRE LAS VARIABLES SUGAR Y TCELL
+#--------------------------------------------------------------
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, f1_score
 from scipy.special import expit
 
 X = data[['sugar', 'Tcell']]
@@ -74,11 +134,16 @@ X = data[['sugar', 'Tcell']]
 y = data['y'].astype(int)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
 
-
+print(X_train.shape)
+print(X_test.shape)
 clf = LogisticRegression(random_state=0).fit(X_train, y_train)
 clf.fit(X_train, y_train)
 print(clf.score(X_train, y_train))
 print(clf.score(X_test, y_test))
+#clf.predict(X_test)
+
+print(confusion_matrix(y_test, clf.predict(X_test)))
+print(f1_score(y_test, clf.predict(X_test)))
 
 alpha = clf.intercept_
 beta = clf.coef_.T
@@ -92,6 +157,7 @@ x_foo = np.linspace(min( [X_train_tranform.min(),
                     100)
 
 
+#print(beta)
 loss = expit(x_foo)
 
 fig, ax = plt.subplots()
@@ -105,6 +171,61 @@ ax.plot(x_foo, loss, linewidth=3, color = 'g', alpha = 0.5)
 ax.legend()
 ax.set_ylabel("Diagnóstico.")
 fig.savefig("images/ajustado.pdf")
+#ax.scatter(x_foo,clf.predict_proba(x_foo)[:,1],marker='x',color='g',linewidth=.1)
+
+
+#---------------------------------------------------------------------------
+#--------------------------------------------------------------------------
+#GENERAMOS EL MODELO SOBRE LAS VARIABLES TCELL
+#--------------------------------------------------------------
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, f1_score
+from scipy.special import expit
+
+X = data[['Tcell']]
+
+y = data['y'].astype(int)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+
+print(X_train.shape)
+print(X_test.shape)
+clf = LogisticRegression(random_state=0).fit(X_train, y_train)
+clf.fit(X_train, y_train)
+print(clf.score(X_train, y_train))
+print(clf.score(X_test, y_test))
+#clf.predict(X_test)
+
+print(confusion_matrix(y_test, clf.predict(X_test)))
+print(f1_score(y_test, clf.predict(X_test)))
+
+alpha = clf.intercept_
+beta = clf.coef_.T
+X_train_tranform = np.array(X_train @ beta + alpha)
+X_ttest_tranform = np.array(X_test @ beta + alpha)
+
+x_foo = np.linspace(min( [X_train_tranform.min(),
+                          X_ttest_tranform.min()] ),
+                    max( [X_train_tranform.max(),
+                          X_ttest_tranform.max()] ),
+                    100)
+
+
+print(alpha)
+print(beta)
+loss = expit(x_foo)
+
+fig, ax = plt.subplots()
+ax.set_title("Ajustado")
+ax.scatter(X_train_tranform, clf.predict_proba(X_train)[:,1], label = 'Train',
+           color = 'b')
+ax.scatter(X_ttest_tranform, clf.predict_proba(X_test)[:,1], label = 'Test',
+           color = 'r')
+ax.plot(x_foo, loss, linewidth=3, color = 'g', alpha = 0.5)
+
+ax.legend()
+ax.set_ylabel("Diagnóstico.")
+fig.savefig("images/ajustado_tcell.pdf")
 #ax.scatter(x_foo,clf.predict_proba(x_foo)[:,1],marker='x',color='g',linewidth=.1)
 
 
