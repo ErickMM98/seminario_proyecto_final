@@ -157,7 +157,7 @@ x_foo = np.linspace(min( [X_train_tranform.min(),
                     100)
 
 
-#print(beta)
+print(alpha)
 loss = expit(x_foo)
 
 fig, ax = plt.subplots()
@@ -211,12 +211,14 @@ x_foo = np.linspace(min( [X_train_tranform.min(),
                     100)
 
 
-print(alpha)
-print(beta)
+print(alpha[0])
+print(beta[0][0])
+gamma = 0.2
+print( -(np.log( 1 / gamma - 1) + alpha[0]) / beta[0][0])
 loss = expit(x_foo)
 
 fig, ax = plt.subplots()
-ax.set_title("Ajustado")
+ax.set_title("Regresión solo la variable Tcell")
 ax.scatter(X_train_tranform, clf.predict_proba(X_train)[:,1], label = 'Train',
            color = 'b')
 ax.scatter(X_ttest_tranform, clf.predict_proba(X_test)[:,1], label = 'Test',
