@@ -57,16 +57,41 @@ print(data.dtypes)
 
 data_pca = data.iloc[:,list(range(1,8)) + [9]]
 data_pca = data_pca[partenered == True]
+
+data_pca['Watch time(Minutes)'] = np.log(data_pca['Watch time(Minutes)'])
+data_pca['Views gained'] = np.log(data_pca['Views gained'])
+data_pca['Stream time(minutes)'] = np.log(data_pca['Stream time(minutes)'])
+data_pca['Peak viewers'] = np.log(data_pca['Peak viewers'])
+data_pca['Average viewers'] = np.log(data_pca['Average viewers'])
+data_pca['Followers'] = np.log(data_pca['Followers gained'])
+
 print(data_pca.columns)
 desribe_data_pca = data_pca.describe()
 
 print((data_pca < 0).sum().sum())
-#sns.pairplot(data_pca, hue = 'Mature')
 
-center_data = StandardScaler(with_std=False).fit(data_pca).transform(data_pca)
+#fig, ax = plt.subplots()
+#fig.set_size_inches([15,15])
+g = sns.pairplot(data_pca, hue = 'Mature')
+g.set_size_inches(15,15)
+center_data = StandardScaler(with_std=True).fit(data_pca).transform(data_pca)
 
 pca = PCA().fit(center_data)
-pca.
+#pca.
+pca_transform = pca.transform(center_data)
+print(pca.explained_variance_ratio_)
+
+foo_df = pd.DataFrame({'PC1': pca_transform[:,0],
+                       'PC2': pca_transform[:,1],
+                       'user': data[partenered == True]['Channel'],
+                       'Mature': data[partenered == True]['Mature'],
+                       'language': data[partenered == True]['Language']})
+
+sns.scatterplot(x = 'PC1', y='PC2', 
+                hue = 'Mature',
+                data = foo_df)
+
+print(pd.DataFrame(pca.components_))
 
 
 
